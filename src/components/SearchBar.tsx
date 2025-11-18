@@ -9,6 +9,7 @@ export default function SearchBar({ setGeoData }: SearchBarProps) {
     // TODO: Styling. Update props maybe to get rid of the dropdown whenever a city is selected
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [results, setResults] = useState<Location[]>([]);
+    const [isOpen, setIsOpen] = useState<boolean>(true);
     const [loading, setLoading] = useState<boolean>(false);
     const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
@@ -27,6 +28,7 @@ export default function SearchBar({ setGeoData }: SearchBarProps) {
 
     const searchLocations = async (query: string): Promise<void> => {
         setLoading(true);
+        setIsOpen(true);
         try {
             const response = await fetch(
                 `http://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`
@@ -42,6 +44,8 @@ export default function SearchBar({ setGeoData }: SearchBarProps) {
 
     const handleSelectLocation = (location: Location) => {
         setGeoData(location);
+        setIsOpen(false);
+        setSearchTerm('');
     };
 
     return (
@@ -54,14 +58,16 @@ export default function SearchBar({ setGeoData }: SearchBarProps) {
                 placeholder="Search Cities"
             />
             {loading && <p>Searching...</p>}
-            <ul>
-                {results.map((location, index) => (
-                    <li key={index} onClick={() => handleSelectLocation(location)}>
-                        {location.name}, {location.state && `${location.state}, `}
-                        {location.country}
-                    </li>
-                ))}
-            </ul>
+            {isOpen &&
+                <ul>
+                    {results.map((location, index) => (
+                        <li key={index} onClick={() => handleSelectLocation(location)}>
+                            {location.name}, {location.state && `${location.state}, `}
+                            {location.country}
+                        </li>
+                    ))}
+                </ul>
+            }
         </div>
     );
 }

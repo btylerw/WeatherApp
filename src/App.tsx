@@ -80,12 +80,17 @@ function App() {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        weatherData?.list.map((item: ForecastItem, index) => (
-          <WeatherCard
-            key={index}
-            weatherData={item}
-          />
-        ))
+        <>
+          <h1 className='text-4xl'>
+            {geoData?.name}, {geoData?.state? `${geoData.state}` : `${geoData?.country}`}
+          </h1>
+          {weatherData?.list.map((item: ForecastItem, index) => (
+            <WeatherCard
+              key={index}
+              weatherData={item}
+            />
+          ))}
+        </>
       )
       }
     </>
