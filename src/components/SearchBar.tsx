@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import type { Location } from "../types";
 
-export interface SearchBarProps {
+interface SearchBarProps {
     setGeoData: React.Dispatch<React.SetStateAction<Location | null>>;
 }
 

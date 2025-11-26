@@ -28,12 +28,24 @@ function App() {
         `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${units}&appid=${apiKey}`
       );
       const data: ForecastData = await response.json();
+      // Check for closest time to display that first
+      //const date = Math.floor(Date.now() / 1000);
+      const date = new Date().getTime();
+      const apiDate = new Date(data.list[0].dt_txt).getTime();
+      console.log("Our datetime: ", date)
+      console.log("API datetime: ", apiDate)
       setWeatherData(data);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
+  }
+
+  // TODO: Write function to parse data from API to split up data into separate days appropriately.
+  // data.list[0] will always be the most recent weather info
+  const parseWeatherData = (data: ForecastData) => {
+    
   }
 
   return (

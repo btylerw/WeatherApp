@@ -3,6 +3,7 @@ import type { ForecastItem} from "../types"
 interface WeatherCardProps {
     weatherData: ForecastItem
 }
+
 export default function WeatherCard({ weatherData }: WeatherCardProps) {
     // TODO: Styling
     return (
