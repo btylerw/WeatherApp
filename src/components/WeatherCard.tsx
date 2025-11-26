@@ -15,7 +15,9 @@ export default function WeatherCard({ weatherData, tempMax, tempMin, variant = '
     if (variant === 'current') {
         return (
             <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl shadow-lg text-white">
-                <div className="text-lg font-medium mb-2">{weatherData.dt_txt}</div>
+                <div className="text-lg font-medium mb-2">
+                    {new Date(weatherData.dt_txt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'})}
+                </div>
                 <img 
                     className="w-32 h-32"
                     src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} 
