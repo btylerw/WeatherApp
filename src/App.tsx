@@ -12,6 +12,12 @@ function App() {
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
+  const unitMap = new Map([
+    ['metric', '°C'],
+    ['imperial', '°F'],
+    ['standard', 'K'],
+  ]);
+
   useEffect(() => {
     if (!geoData) {
       return;
@@ -135,7 +141,7 @@ function App() {
               K
             </button>
           </div>
-          <h1 className='text-4xl font-medium mb-1'>
+          <h1 className='text-4xl font-medium mb-1 mt-2'>
             {geoData?.name}, {geoData?.state? `${geoData.state}` : `${geoData?.country}`}
           </h1>
           <div className='max-w-6xl mx-auto p-4 space-y-4 md:space-y-6'>
@@ -143,7 +149,7 @@ function App() {
               <WeatherCard
                 weatherData={parsedForecast.current.item}
                 variant='current'
-                showDegrees={units!=="standard"}
+                unit={unitMap.get(units)!}
               />
             )}
 
@@ -155,7 +161,7 @@ function App() {
                   tempMax={day.tempMax}
                   tempMin={day.tempMin}
                   variant='daily'
-                  showDegrees={units!=="standard"}
+                  unit={unitMap.get(units)!}
                 />
               ))}
             </div>
