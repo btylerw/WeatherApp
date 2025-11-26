@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import SearchBar from './components/SearchBar'
-import type { Location, ForecastData, ForecastItem } from './types'
+import type { Location, ForecastData, ForecastItem, DailyForecast, ParsedForecast, CurrentWeather } from './types'
 import WeatherCard from './components/WeatherCard'
 import './App.css'
 
@@ -8,8 +8,8 @@ function App() {
   // TODO: Write aggregate function to find max/min temp for each day and display info for closest time
   // Try to use user's location data to automatically display current location data
   const [geoData, setGeoData] = useState<Location | null>(null);
-  const [weatherData, setWeatherData] = useState<ForecastData | null>(null);
-  const [units, setUnits] = useState<'metric' | 'imperial' | 'standard'>('metric');
+  const [parsedForecast, setParsedForecast] = useState<ParsedForecast | null>(null);
+  const [units, setUnits] = useState<'metric' | 'imperial' | 'standard'>('imperial');
   const [loading, setLoading] = useState<boolean>(true);
   const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
@@ -28,13 +28,7 @@ function App() {
         `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${units}&appid=${apiKey}`
       );
       const data: ForecastData = await response.json();
-      // Check for closest time to display that first
-      //const date = Math.floor(Date.now() / 1000);
-      const date = new Date().getTime();
-      const apiDate = new Date(data.list[0].dt_txt).getTime();
-      console.log("Our datetime: ", date)
-      console.log("API datetime: ", apiDate)
-      setWeatherData(data);
+      setParsedForecast(parseWeatherData(data?.list));
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,15 +36,72 @@ function App() {
     }
   }
 
-  // TODO: Write function to parse data from API to split up data into separate days appropriately.
-  // data.list[0] will always be the most recent weather info
-  const parseWeatherData = (data: ForecastData) => {
-    
+  const parseWeatherData = (forecastItems: ForecastItem[]): ParsedForecast => {
+    if (!forecastItems || forecastItems.length === 0) {
+      throw new Error('No forecast data available');
+    }
+
+    const currentItem = forecastItems[0];
+    const current: CurrentWeather = {
+      temp: currentItem.main.temp,
+      item: currentItem
+    };
+
+    const dailyGroups = new Map<string, ForecastItem[]>();
+
+    forecastItems.forEach(item => {
+      const date = item.dt_txt.split(' ')[0];
+
+      if (!dailyGroups.has(date)) {
+        dailyGroups.set(date, []);
+      }
+      dailyGroups.get(date)!.push(item);
+    });
+
+    const daily: DailyForecast[] = [];
+
+    dailyGroups.forEach((items, date) => {
+      const currentDate = currentItem.dt_txt.split(' ')[0];
+      if (date === currentDate  && dailyGroups.size > 1) {
+        return;
+      }
+
+      const temps = items.map(item => item.main.temp);
+      const tempMax = Math.max(...temps);
+      const tempMin = Math.min(...temps);
+
+      const representativeItem = items.find(item => item.dt_txt.includes('12:00:00')) || items[0];
+
+      daily.push({
+        date,
+        tempMax,
+        tempMin,
+        item: representativeItem
+      });
+    });
+
+    daily.sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      current,
+      daily
+    };
   }
 
   return (
     <>
       <div className="flex items-center justify-center gap-4">
+        <button
+          onClick={() => setUnits('imperial')}
+          className={`px-4 py-2 rounded ${
+            units === 'imperial' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          °F
+        </button>
+
         <button
           onClick={() => setUnits('metric')}
           className={`px-4 py-2 rounded ${
@@ -62,16 +113,6 @@ function App() {
           °C
         </button>
 
-        <button
-          onClick={() => setUnits('imperial')}
-          className={`px-4 py-2 rounded ${
-            units === 'imperial' 
-              ? 'bg-blue-600 text-white' 
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          °F
-        </button>
 
         <button
           onClick={() => setUnits('standard')}
@@ -96,10 +137,20 @@ function App() {
           <h1 className='text-4xl'>
             {geoData?.name}, {geoData?.state? `${geoData.state}` : `${geoData?.country}`}
           </h1>
-          {weatherData?.list.map((item: ForecastItem, index) => (
+          {parsedForecast && (
             <WeatherCard
-              key={index}
-              weatherData={item}
+              weatherData={parsedForecast.current.item}
+              variant='current'
+            />
+          )}
+
+          {parsedForecast?.daily.map(day => (
+            <WeatherCard 
+              key={day.date}
+              weatherData={day.item}
+              tempMax={day.tempMax}
+              tempMin={day.tempMin}
+              variant='daily'
             />
           ))}
         </>

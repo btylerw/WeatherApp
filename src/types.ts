@@ -55,3 +55,20 @@ export interface ForecastData {
         sunset: number;
     };
 }
+
+export interface CurrentWeather {
+    temp: number;
+    item: ForecastItem;
+}
+
+export interface DailyForecast {
+    date: string;
+    tempMax: number;
+    tempMin: number;
+    item: ForecastItem;
+}
+
+export interface ParsedForecast {
+    current: CurrentWeather;
+    daily: DailyForecast[];
+}
