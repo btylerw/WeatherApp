@@ -137,22 +137,26 @@ function App() {
           <h1 className='text-4xl'>
             {geoData?.name}, {geoData?.state? `${geoData.state}` : `${geoData?.country}`}
           </h1>
-          {parsedForecast && (
-            <WeatherCard
-              weatherData={parsedForecast.current.item}
-              variant='current'
-            />
-          )}
+          <div className='max-w-6xl mx-auto p-4 space-y-4 md:space-y-6'>
+            {parsedForecast && (
+              <WeatherCard
+                weatherData={parsedForecast.current.item}
+                variant='current'
+              />
+            )}
 
-          {parsedForecast?.daily.map(day => (
-            <WeatherCard 
-              key={day.date}
-              weatherData={day.item}
-              tempMax={day.tempMax}
-              tempMin={day.tempMin}
-              variant='daily'
-            />
-          ))}
+            <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4'>
+              {parsedForecast?.daily.map(day => (
+                <WeatherCard 
+                  key={day.date}
+                  weatherData={day.item}
+                  tempMax={day.tempMax}
+                  tempMin={day.tempMin}
+                  variant='daily'
+                />
+              ))}
+            </div>
+          </div>
         </>
       )
       }
