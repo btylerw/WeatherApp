@@ -5,11 +5,10 @@ interface WeatherCardProps {
     tempMax?: number;
     tempMin?: number;
     variant?: 'current' | 'daily';
+    showDegrees: boolean;
 }
 
-export default function WeatherCard({ weatherData, tempMax, tempMin, variant = 'current' }: WeatherCardProps) {
-    // TODO: Styling
-
+export default function WeatherCard({ weatherData, tempMax, tempMin, variant = 'current', showDegrees }: WeatherCardProps) {
     const displayTempMax = tempMax ?? weatherData.main.temp_max;
     const displayTempMin = tempMin ?? weatherData.main.temp_max;
 
@@ -22,11 +21,11 @@ export default function WeatherCard({ weatherData, tempMax, tempMin, variant = '
                     src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`} 
                     alt={weatherData.weather[0].description}
                 />
-                <div className="text-6xl font-bold mb-4">{Math.round(weatherData.main.temp)}°</div>
+                <div className="text-6xl font-bold mb-4">{Math.round(weatherData.main.temp)}{showDegrees && '°'}</div>
                 <div className="text-xl capitalize mb-4">{weatherData.weather[0].description}</div>
                 <div className="flex gap-8 text-lg">
-                    <div>High: {Math.round(displayTempMax)}°</div>
-                    <div>Low: {Math.round(displayTempMin)}°</div>
+                    <div>High: {Math.round(displayTempMax)}{showDegrees && '°'}</div>
+                    <div>Low: {Math.round(displayTempMin)}{showDegrees && '°'}</div>
                 </div>
                 <div className="mt-2 text-sm">Rain: {(weatherData.pop * 100).toFixed(0)}%</div>
             </div>
@@ -44,8 +43,8 @@ export default function WeatherCard({ weatherData, tempMax, tempMin, variant = '
                 alt={weatherData.weather[0].description}
             />
             <div className="flex gap-2 text-lg font-semibold">
-                <span className="text-red-500">H: {Math.round(displayTempMax)}°</span>
-                <span className="text-red-500">L: {Math.round(displayTempMin)}°</span>
+                <span className="text-red-500">H: {Math.round(displayTempMax)}{showDegrees && '°'}</span>
+                <span className="text-red-500">L: {Math.round(displayTempMin)}{showDegrees && '°'}</span>
             </div>
             <div className="text-xs text-gray-500 mt-1">
                 Rain: {(weatherData.pop * 100).toFixed(0)}%
